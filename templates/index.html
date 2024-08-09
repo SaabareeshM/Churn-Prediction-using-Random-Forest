@@ -12,15 +12,12 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='styles.css') }}"
     />
+    <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="container">
-      <h1 class="text-center my-4">Bank Churn Prediction</h1>
-      <form
-        action="{{ url_for('predict') }}"
-        method="post"
-        class="form-container"
-      >
+      <h2 class="text-center mt-4">Bank Churn Prediction</h2>
+      <form action="/predict" method="post">
         <div class="form-group">
           <label for="CreditScore">Credit Score</label>
           <input
@@ -62,10 +59,10 @@
           <label for="Balance">Balance</label>
           <input
             type="number"
+            step="0.01"
             class="form-control"
             id="Balance"
             name="Balance"
-            step="0.01"
             required
           />
         </div>
@@ -110,18 +107,23 @@
           <label for="EstimatedSalary">Estimated Salary</label>
           <input
             type="number"
+            step="0.01"
             class="form-control"
             id="EstimatedSalary"
             name="EstimatedSalary"
-            step="0.01"
             required
           />
         </div>
         <button type="submit" class="btn btn-primary btn-block">Predict</button>
       </form>
+      <br />
       {% if prediction_text %}
-      <div class="alert alert-info mt-4" role="alert">
-        {{ prediction_text }}
+      <h3 class="text-center">{{ prediction_text }}</h3>
+      {% endif %} {% if explanation_html %}
+      <div class="explanation-container">
+        <div class="explanation" style="text-align: center">
+          {{ explanation_html | safe }}
+        </div>
       </div>
       {% endif %}
     </div>

@@ -1,12 +1,27 @@
 from flask import Flask, request, render_template
 import pandas as pd
 import joblib
+import lime
+import lime.lime_tabular
+import numpy as np
 
 app = Flask(__name__)
 
 # Load the pre-trained model and feature names
 model = joblib.load('Churn_Predict_model.pkl')
 model_columns = joblib.load('model_columns.pkl')
+
+# Generate or load sample data to initialize LIME
+# Here, we'll create a small DataFrame with random data
+sample_data = pd.DataFrame(np.random.rand(5, len(model_columns)), columns=model_columns)
+
+# Initialize LIME explainer with sample data
+explainer = lime.lime_tabular.LimeTabularExplainer(
+    training_data=sample_data.values,
+    feature_names=model_columns,
+    class_names=['Not Churn', 'Churn'],
+    mode='classification'
+)
 
 @app.route('/')
 def home():
@@ -68,7 +83,11 @@ def predict():
         else:
             result = 'The customer will not churn.'
 
-        return render_template('index.html', prediction_text=result)
+        # LIME explanation
+        explanation = explainer.explain_instance(input_data.iloc[0], model.predict_proba)
+        explanation_html = explanation.as_html()
+
+        return render_template('index.html', prediction_text=result, explanation_html=explanation_html)
     except Exception as e:
         return f"An error occurred: {e}"
 
